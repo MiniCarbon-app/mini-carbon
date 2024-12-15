@@ -1,7 +1,5 @@
-// /src/validators/transportationValidator.js
 const Joi = require('joi');
 
-// Definisikan skema validasi untuk input transportasi
 const transportationSchema = Joi.object({
     vehicleType: Joi.string().valid('truck', 'car', 'motorcycle', 'walking', 'bicycle')
         .required()
@@ -10,7 +8,7 @@ const transportationSchema = Joi.object({
             'any.only': 'Tipe kendaraan tidak valid'
         }),
 
-    fuelType: Joi.string().valid('diesel', 'petrol')  // Valid hanya untuk kendaraan yang menggunakan bahan bakar
+    fuelType: Joi.string().valid('diesel', 'petrol')
         .when('vehicleType', { 
             is: Joi.valid('truck', 'car', 'motorcycle'), 
             then: Joi.required() 
@@ -28,7 +26,6 @@ const transportationSchema = Joi.object({
         })
 });
 
-// Fungsi untuk memvalidasi inputan
 const validateTransportationInput = (data) => {
     return transportationSchema.validate(data);
 };

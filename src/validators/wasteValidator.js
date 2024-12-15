@@ -1,7 +1,5 @@
-// /src/validators/wasteValidator.js
 const Joi = require('joi');
 
-// Definisikan skema validasi untuk input limbah
 const wasteSchema = Joi.object({
     wasteType: Joi.string().valid('organic', 'inorganic')
         .required()
@@ -18,7 +16,6 @@ const wasteSchema = Joi.object({
         })
 });
 
-// Fungsi untuk memvalidasi inputan
 const validateWasteInput = (data) => {
     return wasteSchema.validate(data);
 };

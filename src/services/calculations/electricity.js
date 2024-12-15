@@ -1,20 +1,16 @@
-// /src/services/calculations/electricity.js
-
-// Fungsi untuk menghitung jejak karbon berdasarkan tipe alat rumah tangga dan konsumsi listrik
 function calculateElectricity(data) {
-    // Faktor emisi per kWh untuk berbagai alat rumah tangga
+
     const emissionFactors = {
-        refrigerator: 0.3, // Kulkas - kg CO₂ per kWh
-        washing_machine: 0.6, // Mesin cuci - kg CO₂ per kWh
-        iron: 0.5, // Setrika - kg CO₂ per kWh
-        led_light: 0.1, // Lampu LED - kg CO₂ per kWh
-        fan: 0.2, // Kipas angin - kg CO₂ per kWh
-        tv: 0.4, // TV - kg CO₂ per kWh
-        air_conditioner: 1.0, // AC - kg CO₂ per kWh
-        desktop_pc: 0.6 // PC desktop - kg CO₂ per kWh
+        refrigerator: 0.3, 
+        washing_machine: 0.6,
+        iron: 0.5,
+        led_light: 0.1,
+        fan: 0.2,
+        tv: 0.4,
+        air_conditioner: 1.0,
+        desktop_pc: 0.6
     };
 
-    // Mengambil faktor emisi yang sesuai dengan tipe alat rumah tangga
     let emissionFactor;
     switch (data.deviceType) {
         case 'refrigerator':
@@ -45,11 +41,9 @@ function calculateElectricity(data) {
             throw new Error('Tipe alat rumah tangga tidak dikenali');
     }
 
-    // Menghitung emisi karbon berdasarkan konsumsi listrik
-    const emissions = data.dailyConsumption * emissionFactor; // dailyConsumption dalam kWh, emissionFactor dalam kg CO₂ per kWh
+    const emissions = data.dailyConsumption * emissionFactor;
 
     return emissions;
 }
 
-// Ekspor fungsi calculateElectricity agar bisa digunakan di file lain
 module.exports = calculateElectricity;

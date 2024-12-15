@@ -1,7 +1,5 @@
-// /src/validators/electricityValidator.js
 const Joi = require('joi');
 
-// Definisikan skema validasi untuk input konsumsi listrik
 const electricitySchema = Joi.object({
     deviceType: Joi.string().valid(
         'refrigerator', 'washing_machine', 'iron', 'led_light', 
@@ -21,7 +19,6 @@ const electricitySchema = Joi.object({
         })
 });
 
-// Fungsi untuk memvalidasi inputan
 const validateElectricityInput = (data) => {
     return electricitySchema.validate(data);
 };

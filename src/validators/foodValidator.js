@@ -1,7 +1,5 @@
-// /src/validators/foodValidator.js
 const Joi = require('joi');
 
-// Definisikan skema validasi untuk input konsumsi makanan
 const foodSchema = Joi.object({
     foodType: Joi.string().valid('beef', 'chicken', 'vegetarian')
         .required()
@@ -18,7 +16,6 @@ const foodSchema = Joi.object({
         })
 });
 
-// Fungsi untuk memvalidasi inputan
 const validateFoodInput = (data) => {
     return foodSchema.validate(data);
 };
