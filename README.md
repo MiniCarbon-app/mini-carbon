@@ -1,4 +1,4 @@
-# mini-carbon servide ide
+# Mini-Carbon service side
 
 This project contains a carbon calculation API which is the main feature, which was created using Node.Js, Happi, and Google Firestore, this will be deployed using Cloud run. This API uses a machine learning model to get recommendations for reducing carbon from the carbon produced
 
