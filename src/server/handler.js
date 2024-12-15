@@ -15,10 +15,10 @@ const loadModel = require('../services/loadModel');
 // predict handler
 const predictHandler = async (request, h) => {
     try {
-        const { id, collection } = request.payload;
+        const { userId, date, category } = request.payload;
 
-        // Ambil data dari Firestore berdasarkan ID
-        const inputData = await getData(collection, id);
+        // Ambil data dari GCS berdasarkan kategori, userId, dan tanggal
+        const inputData = await getData(category, userId, date);
         if (!inputData) {
             return h.response({ error: 'Data tidak ditemukan' }).code(404);
         }
@@ -29,18 +29,18 @@ const predictHandler = async (request, h) => {
         // Lakukan prediksi menggunakan model
         const prediction = model.predict(inputData); // Asumsi ada fungsi `predict` di model
 
-        // Simpan hasil prediksi ke koleksi 'recommendations'
+        // Simpan hasil prediksi ke kategori 'recommendations'
         const result = {
-            inputId: id, // ID kalkulasi input
-            recommendation: prediction, // Hasil prediksi sebagai rekomendasi
+            inputId: `${category}/${userId}/${date}.json`, // Referensi input
+            recommendation: prediction, // Hasil prediksi
             created_at: new Date(), // Timestamp
         };
-        const storedId = await storeData('recommendations', result, true); // Simpan ke koleksi 'recommendations'
+        const storedPath = await storeData('recommendations', result, userId, true);
 
         // Kirim hasil prediksi kembali ke frontend
         return h.response({
             message: 'Prediksi berhasil!',
-            data: { id: storedId, prediction },
+            data: { path: storedPath, prediction },
         }).code(200);
     } catch (err) {
         return h.response({ error: 'Terjadi kesalahan', message: err.message }).code(500);
@@ -55,7 +55,8 @@ const electricityHandler = async (request, h) => {
             return h.response({ error: 'Input tidak valid', message: error.details[0].message }).code(400);
         }
         const emissions = calculateElectricity(value);
-        const storedId = await storeData('calculations', emissions); // Simpan ke koleksi 'calculations'
+        console.log ("kalkulasi berhasil")
+        const storedId = await storeData('calculations', emissions);
         return h.response({
             message: 'Kalkulasi listrik berhasil!',
             data: { id: storedId, ...value, emissions },

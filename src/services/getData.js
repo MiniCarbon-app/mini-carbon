@@ -1,26 +1,29 @@
-// /src/services/getData.js
+const { Storage } = require('@google-cloud/storage');
+const path = require('path');
 
-const firestoreHandler = require('../handlers/firestoreHandler');
+require('dotenv').config();
 
-// Fungsi untuk mengambil data berdasarkan ID dari Firestore
-module.exports = async function getData(collection, id) {
-    if (!id || typeof id !== 'string' || id.trim() === '') {
-        throw new Error('ID yang diberikan tidak valid');
-    }
+const storage = new Storage({
+    keyFilename: process.env.GCS_CREDENTIALS_PATH,
+});
+const bucketName = process.env.GCS_BUCKET_NAME;
+
+module.exports = async function getData(category, userId, date) {
+    const fileName = `${date}.json`;
+    const source = `${category}/${userId}/${fileName}`;
+    const tempFilePath = path.resolve(`./temp_${Date.now()}.json`);
 
     try {
-        // Mengambil dokumen berdasarkan koleksi dan ID
-        const docRef = firestoreHandler.db.collection(collection).doc(id);
-        const doc = await docRef.get();
+        // Unduh file dari Google Cloud Storage
+        await storage.bucket(bucketName).file(source).download({ destination: tempFilePath });
 
-        if (!doc.exists) {
-            throw new Error('Data dengan ID ' + id + ' tidak ditemukan');
-        }
+        // Baca dan kembalikan isi file
+        const fileContent = require('fs').readFileSync(tempFilePath, 'utf8');
+        require('fs').unlinkSync(tempFilePath); // Hapus file sementara
 
-        // Mengembalikan data yang ditemukan di dokumen
-        return doc.data();
+        return JSON.parse(fileContent);
     } catch (err) {
-        // Menambahkan pesan error lebih jelas
-        throw new Error('Terjadi kesalahan saat mengambil data dari Firestore: ' + err.message);
+        console.error('Error mengambil data dari Google Cloud Storage:', err.message);
+        throw new Error('Error mengambil data dari Google Cloud Storage: ' + err.message);
     }
 };

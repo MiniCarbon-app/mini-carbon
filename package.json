@@ -10,10 +10,10 @@
   "author": "farhan",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/storage": "^7.14.0",
     "@hapi/hapi": "^21.3.12",
     "@tensorflow/tfjs-node": "^4.22.0",
     "dotenv": "^16.4.7",
-    "firebase-admin": "^13.0.1",
     "joi": "^17.13.3"
   }
 }

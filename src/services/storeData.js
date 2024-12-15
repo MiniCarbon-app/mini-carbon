@@ -1,22 +1,37 @@
-const firestoreHandler = require('../handlers/firestoreHandler');
+const { Storage } = require('@google-cloud/storage');
+const path = require('path');
 
-// Fungsi untuk menyimpan data ke Firestore
-module.exports = async function storeData(collection, data, recomendation = false) {
-    const document = {
-        ...data,
-        created_at: new Date(),  // Tambahkan timestamp saat data disimpan
-    };
+require('dotenv').config();
+
+const storage = new Storage({
+    keyFilename: process.env.GCS_CREDENTIALS_PATH,
+});
+const bucketName = process.env.GCS_BUCKET_NAME;
+
+module.exports = async function storeData(category, data, userId, isRecommendation = false) {
+    const today = new Date();
+    const date = today.toISOString().split('T')[0]; // Format YYYY-MM-DD
+    const fileName = `${date}.json`;
+    const destination = `${category}/${userId}/${fileName}`; // Struktur folder
 
     try {
-        // Menyimpan data ke koleksi yang sesuai dengan parameter 'collection'
-        const docRef = await firestoreHandler.db.collection(collection).add(document);
-        
-        // Log berdasarkan jenis koleksi
-        console.log(`${recomendation ? 'Recomendasi' : 'Hasil kalkulasi'} berhasil disimpan ke koleksi '${collection}'.`);
+        // Simpan data ke file lokal sementara
+        const tempFilePath = path.resolve(`./temp_${Date.now()}.json`);
+        require('fs').writeFileSync(tempFilePath, JSON.stringify(data, null, 2));
 
-        return docRef.id;  // Mengembalikan ID dari dokumen yang disimpan
+        // Unggah file ke Google Cloud Storage
+        await storage.bucket(bucketName).upload(tempFilePath, { destination });
+
+        // Hapus file sementara
+        require('fs').unlinkSync(tempFilePath);
+
+        console.log(
+            `${isRecommendation ? 'Rekomendasi' : 'Hasil kalkulasi'} berhasil diunggah ke ${destination}.`
+        );
+
+        return destination; // Mengembalikan lokasi file di bucket
     } catch (err) {
-        console.error('Error menyimpan data ke Firestore:', err.message);  // Menampilkan pesan error yang lebih lengkap
-        throw new Error('Error menyimpan data ke Firestore: ' + err.message);
+        console.error('Error menyimpan data ke Google Cloud Storage:', err.message);
+        throw new Error('Error menyimpan data ke Google Cloud Storage: ' + err.message);
     }
 };
